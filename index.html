@@ -53,45 +53,47 @@
             transition: background-color 0.3s, border-color 0.3s;
         }
 
-        /* Theme Toggle Switch */
-        .theme-switch-container {
+        /* Top Right Controls Container */
+        .top-controls {
             position: absolute;
             top: 20px;
             right: 25px;
             display: flex;
             align-items: center;
-            cursor: pointer;
+            gap: 12px;
         }
 
-        .theme-toggle {
-            width: 50px;
-            height: 26px;
-            background-color: #333;
-            border-radius: 50px;
-            position: relative;
-            transition: background-color 0.3s;
-            border: 1px solid var(--border-color);
-        }
-
-        .theme-toggle::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
+        /* Inconspicuous Half-Black / Half-White Theme Toggle (Vertical Split) */
+        .theme-toggle-circle {
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            top: 2px;
-            left: 3px;
-            background-color: #FFFFFF;
-            transition: transform 0.3s;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            background: linear-gradient(to right, #222 50%, #fdfbf7 50%);
+            transition: transform 0.2s;
         }
 
-        [data-theme="dark"] .theme-toggle {
-            background-color: #E2D9CC;
+        .theme-toggle-circle:hover {
+            transform: scale(1.1);
         }
 
-        [data-theme="dark"] .theme-toggle::before {
-            transform: translateX(23px);
-            background-color: #1A1816;
+        /* Top Print Button Icon */
+        .top-print-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            padding: 0;
+            margin: 0;
+            width: auto;
+            transition: opacity 0.2s;
+        }
+
+        .top-print-btn:hover {
+            opacity: 0.7;
+            background: none;
         }
 
         h1 {
@@ -124,7 +126,7 @@
             font-family: inherit;
             background-color: var(--input-bg);
             color: var(--text-color);
-            transition: all 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         select:focus, input:focus, textarea:focus {
@@ -133,9 +135,11 @@
             box-shadow: 0 0 0 3px rgba(154, 123, 76, 0.2);
         }
 
+        /* Auto-expanding textarea styling */
         textarea {
-            resize: vertical;
-            height: 120px;
+            resize: none;
+            min-height: 120px;
+            overflow-y: hidden;
         }
 
         button {
@@ -175,11 +179,6 @@
             margin: 24px 0;
             line-height: 2.5;
             font-size: 1.2rem;
-            color: #000000 !important; /* Keep bible verses strictly black text */
-        }
-
-        [data-theme="dark"] #quiz-container {
-            color: #EDE8E1 !important; /* Keep readable in dark mode if needed, or enforce strict black per user request */
         }
 
         .blank-input {
@@ -250,7 +249,7 @@
                 border: none;
                 padding: 0;
             }
-            .theme-switch-container, button, select, label[for="difficulty-select"], #setup-section {
+            .top-controls, button, select, label[for="difficulty-select"], #setup-section {
                 display: none !important;
             }
             .blank-input {
@@ -265,9 +264,10 @@
 <body>
 
 <div class="container">
-    <!-- Theme Toggle Switch -->
-    <div class="theme-switch-container" id="theme-switch-btn" title="Toggle Light/Dark Theme">
-        <div class="theme-toggle"></div>
+    <!-- Top Right Controls (Print Button & Inconspicuous Theme Toggle) -->
+    <div class="top-controls">
+        <button class="top-print-btn" onclick="window.print()" title="Print Quiz">🖨️</button>
+        <div class="theme-toggle-circle" id="theme-switch-btn" title="Toggle Light/Dark Theme"></div>
     </div>
 
     <h1>Bible Verse Memorization Quiz</h1>
@@ -323,7 +323,6 @@
 
         <div class="action-row">
             <button id="submit-btn">Submit Quiz</button>
-            <button id="print-btn" class="secondary-btn" onclick="window.print()">Print Quiz</button>
         </div>
     </div>
 
@@ -333,7 +332,6 @@
         <div id="results-container"></div>
         <div class="action-row">
             <button id="restart-btn">Quiz Again</button>
-            <button id="result-print-btn" class="secondary-btn" onclick="window.print()">Print Results</button>
         </div>
     </div>
 </div>
@@ -347,6 +345,15 @@
         document.documentElement.setAttribute('data-theme', newTheme);
     });
 
+    // Auto-expanding textarea logic
+    const verseTextarea = document.getElementById('custom-verse-text');
+    verseTextarea.addEventListener('input', autoExpandTextarea);
+
+    function autoExpandTextarea() {
+        verseTextarea.style.height = 'auto';
+        verseTextarea.style.height = verseTextarea.scrollHeight + 'px';
+    }
+
     let availableHints = 0;
 
     document.getElementById('start-btn').addEventListener('click', () => {
@@ -357,7 +364,7 @@
         }
 
         const title = document.getElementById('custom-verse-title').value.trim() || "Custom Verse";
-        let text = document.getElementById('custom-verse-text').value.trim();
+        let text = verseTextarea.value.trim();
 
         if (!text) {
             alert("Please paste some verse text first!");
@@ -371,9 +378,6 @@
         } else {
             document.getElementById('hint-container').classList.add('hidden');
         }
-
-        text = text.replace(/^\d+\s*/gm, '');
-        text = text.replace(/(^|\s)[a-zA-Z](\s|$)/g, ' ');
 
         document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
         buildQuiz(text, difficulty);
@@ -390,7 +394,9 @@
         let validIndices = [];
         rawWords.forEach((word, index) => {
             const clean = word.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
-            if (clean.length > 0) {
+            
+            // Only select words as valid blanks. Ignore standalone numbers (verse numbers) and numbers with letters attached.
+            if (clean.length > 0 && isNaN(clean)) {
                 validIndices.push(index);
             }
         });
@@ -448,7 +454,6 @@
         const quizContainer = document.getElementById('quiz-container');
         const inputs = Array.from(quizContainer.querySelectorAll('.blank-input'));
         
-        // Find an input that isn't fully filled yet
         let targetInput = inputs.find(inp => {
             const currentVal = inp.value.trim();
             const correctVal = inp.dataset.answer;
