@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse Memorization Quiz (ESV)</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        #quiz-container {
+            margin-top: 20px;
+            line-height: 2.2;
+            font-size: 1.15rem;
+        }
+
+        .blank-input {
+            display: inline-block;
+            width: 110px;
+            padding: 2px 6px;
+            margin: 0 4px;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .correct {
+            color: #16a34a;
+            background-color: #dcfce7;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .incorrect {
+            color: #dc2626;
+            background-color: #fee2e2;
+            text-decoration: line-through;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bible Verse Memorizer (ESV)</h1>
+
+    <!-- Setup Form -->
+    <div id="setup-section">
+        <div class="form-group">
+            <label for="book-select">Select Bible Book</label>
+            <select id="book-select">
+                <option value="Genesis">Genesis</option>
+                <option value="Exodus">Exodus</option>
+                <option value="Psalms">Psalms</option>
+                <option value="Proverbs">Proverbs</option>
+                <option value="Isaiah">Isaiah</option>
+                <option value="Matthew" selected>Matthew</option>
+                <option value="John">John</option>
+                <option value="Romans">Romans</option>
+                <option value="Philippians">Philippians</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label for="chapter-input">Chapter</label>
+                <input type="number" id="chapter-input" value="6" min="1" max="150">
+            </div>
+            <div class="form-group">
+                <label for="verses-input">Verse(s) (e.g., 33 or 33-34)</label>
+                <input type="text" id="verses-input" value="33">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="difficulty-select">Difficulty Level</label>
+            <select id="difficulty-select">
+                <option value="easy">Easy (Only a couple of words missing)</option>
+                <option value="medium">Medium (~25% words missing)</option>
+                <option value="intermediate">Intermediate (~35% words missing)</option>
+                <option value="middle-intermediate">Middle Intermediate (~50% words missing)</option>
+                <option value="hard" selected>Hard (Every other word blank)</option>
+            </select>
+        </div>
+
+        <button id="start-btn">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Active Section -->
+    <div id="quiz-section" class="hidden">
+        <h3 id="quiz-title"></h3>
+        <div id="quiz-container"></div>
+        <button id="submit-btn">Submit Quiz</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="hidden">
+        <h3>Quiz Results</h3>
+        <div id="results-container"></div>
+        <button id="restart-btn">Quiz Again</button>
+    </div>
+</div>
+
+<script>
+    let currentVerseData = [];
+
+    document.getElementById('start-btn').addEventListener('click', async () => {
+        const book = document.getElementById('book-select').value;
+        const chapter = document.getElementById('chapter-input').value;
+        const verses = document.getElementById('verses-input').value.trim();
+        const difficulty = document.getElementById('difficulty-select').value;
+
+        const query = `${book} ${chapter}:${verses}`;
+        document.getElementById('quiz-title').innerText = `Quiz: ${query} (ESV)`;
+
+        try {
+            // Fetching specifically with the ESV translation parameter
+            const response = await fetch(`https://bible-api.com/${encodeURIComponent(query)}?translation=esv`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert("Could not fetch verse. Please check your book, chapter, and verse range.");
+                return;
+            }
+
+            buildQuiz(data.text, difficulty);
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+        } catch (error) {
+            alert("Error connecting to Bible API. Make sure you have an internet connection.");
+        }
+    });
+
+    function buildQuiz(text, difficulty) {
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.innerHTML = '';
+        currentVerseData = [];
+
+        const rawWords = text.trim().split(/\s+/);
+
+        rawWords.forEach((rawWord, index) => {
+            const cleanWord = rawWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
+            
+            let isBlank = false;
+
+            if (cleanWord.length > 0) {
+                if (difficulty === 'easy') {
+                    if (index === 2 || index === 5) isBlank = true;
+                } else if (difficulty === 'medium') {
+                    if (index % 4 === 0 && cleanWord.length > 2) isBlank = true;
+                } else if (difficulty === 'intermediate') {
+                    if (index % 3 === 0 && cleanWord.length > 2) isBlank = true;
+                } else if (difficulty === 'middle-intermediate') {
+                    if (index % 2 === 0 && Math.random() > 0.3) isBlank = true;
+                } else if (difficulty === 'hard') {
+                    if (index % 2 !== 0) isBlank = true;
+                }
+            }
+
+            currentVerseData.push({ original: rawWord, clean: cleanWord, isBlank: isBlank });
+
+            if (isBlank && cleanWord.length > 0) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'blank-input';
+                input.dataset.answer = cleanWord;
+                quizContainer.appendChild(input);
+            } else {
+                const span = document.createElement('span');
+                span.innerText = rawWord + ' ';
+                quizContainer.appendChild(span);
+            }
+        });
+    }
+
+    document.getElementById('submit-btn').addEventListener('click', () => {
+        const quizContainer = document.getElementById('quiz-container');
+        const inputs = quizContainer.querySelectorAll('.blank-input');
+        
+        let correctCount = 0;
+        let totalBlanks = inputs.length;
+
+        inputs.forEach(input => {
+            const userAnswer = input.value.trim().toLowerCase();
+            const correctAnswer = input.dataset.answer.toLowerCase();
+            const parent = input.parentNode;
+
+            const span = document.createElement('span');
+            if (userAnswer === correctAnswer) {
+                span.className = 'correct';
+                span.innerText = input.dataset.answer;
+                correctCount++;
+            } else {
+                span.innerHTML = `<span class="incorrect">${input.value || '(blank)'}</span> <span class="correct">(${input.dataset.answer})</span>`;
+            }
+            parent.replaceChild(span, input);
+        });
+
+        document.getElementById('submit-btn').classList.add('hidden');
+        
+        const resultsContainer = document.getElementById('results-container');
+        resultsContainer.innerHTML = `<div class="result-box">You got ${correctCount} out of ${totalBlanks} blanks correct!</div>`;
+        document.getElementById('results-section').classList.remove('hidden');
+    });
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        document.getElementById('results-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.add('hidden');
+        document.getElementById('submit-btn').classList.remove('hidden');
+        document.getElementById('setup-section').classList.remove('hidden');
+    });
+</script>
+
+</body>
+</html>
