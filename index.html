@@ -382,31 +382,49 @@
         quizContainer.innerHTML = '';
 
         const rawWords = text.split(/\s+/).filter(w => w.length > 0);
+        
+        // Find all indices of valid words that can be blanked out
+        let validIndices = [];
+        rawWords.forEach((word, index) => {
+            const clean = word.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
+            if (clean.length > 0) {
+                validIndices.push(index);
+            }
+        });
 
-        // Decide which word indices will be blanks based on difficulty, with randomization
+        // Determine how many blanks to create based on difficulty
+        let blankCount = 2; // default easy
+        if (difficulty === 'medium') {
+            blankCount = Math.ceil(validIndices.length * 0.25);
+        } else if (difficulty === 'intermediate') {
+            blankCount = Math.ceil(validIndices.length * 0.35);
+        } else if (difficulty === 'middle-intermediate') {
+            blankCount = Math.ceil(validIndices.length * 0.50);
+        } else if (difficulty === 'hard') {
+            blankCount = Math.ceil(validIndices.length * 0.50); // Every other word roughly
+        }
+
+        let chosenIndices = new Set();
+
+        if (difficulty === 'hard') {
+            // Hard: Randomly pick either even or odd positions to start every-other-word spacing fresh each time
+            let startOffset = Math.random() < 0.5 ? 0 : 1;
+            validIndices.forEach((pos, idx) => {
+                if (idx % 2 === startOffset) {
+                    chosenIndices.add(pos);
+                }
+            });
+        } else {
+            // Randomly shuffle valid indices and pick `blankCount` unique positions every time
+            let shuffled = [...validIndices].sort(() => 0.5 - Math.random());
+            let selected = shuffled.slice(0, blankCount);
+            chosenIndices = new Set(selected);
+        }
+
         rawWords.forEach((rawWord, index) => {
             const cleanWord = rawWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
-            let isBlank = false;
-
-            if (cleanWord.length > 0) {
-                if (difficulty === 'easy') {
-                    // Blank out 2 random valid words
-                    const randomChance = Math.random();
-                    if (cleanWord.length > 3 && randomChance < 0.15) isBlank = true;
-                } else if (difficulty === 'medium') {
-                    if (cleanWord.length > 2 && Math.random() < 0.25) isBlank = true;
-                } else if (difficulty === 'intermediate') {
-                    if (cleanWord.length > 2 && Math.random() < 0.35) isBlank = true;
-                } else if (difficulty === 'middle-intermediate') {
-                    if (cleanWord.length > 1 && Math.random() < 0.50) isBlank = true;
-                } else if (difficulty === 'hard') {
-                    // Hard: Randomize starting offset so alternating pattern shifts every time
-                    const randomOffset = Math.floor(Math.random() * 2);
-                    if ((index + randomOffset) % 2 !== 0 && cleanWord.length > 0) isBlank = true;
-                }
-            }
-
-            if (isBlank && cleanWord.length > 0) {
+            
+            if (chosenIndices.has(index) && cleanWord.length > 0) {
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.className = 'blank-input';
