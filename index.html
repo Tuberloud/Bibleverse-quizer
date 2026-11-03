@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bible Verse Memorization Quiz (ESV)</title>
+    <title>ESV Bible Verse Memorization Quiz</title>
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-color: #1e293b;
@@ -51,19 +51,25 @@
             margin-bottom: 6px;
         }
 
-        select, input, button {
+        select, input, textarea, button {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 1rem;
             box-sizing: border-box;
+            font-family: inherit;
         }
 
-        select:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 90px;
         }
 
         button {
@@ -87,6 +93,17 @@
 
         .row .form-group {
             flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-group input {
+            width: auto;
         }
 
         #quiz-container {
@@ -138,33 +155,118 @@
 <body>
 
 <div class="container">
-    <h1>Bible Verse Memorizer (ESV)</h1>
+    <h1>ESV Bible Verse Memorizer</h1>
 
     <!-- Setup Form -->
     <div id="setup-section">
-        <div class="form-group">
-            <label for="book-select">Select Bible Book</label>
-            <select id="book-select">
-                <option value="Genesis">Genesis</option>
-                <option value="Exodus">Exodus</option>
-                <option value="Psalms">Psalms</option>
-                <option value="Proverbs">Proverbs</option>
-                <option value="Isaiah">Isaiah</option>
-                <option value="Matthew" selected>Matthew</option>
-                <option value="John">John</option>
-                <option value="Romans">Romans</option>
-                <option value="Philippians">Philippians</option>
-            </select>
+        
+        <!-- Toggle for Paste Mode -->
+        <div class="checkbox-group">
+            <input type="checkbox" id="paste-toggle">
+            <label for="paste-toggle" style="margin-bottom:0; cursor:pointer;">Paste verse text manually instead of using API</label>
         </div>
 
-        <div class="row">
+        <!-- API Selector Section -->
+        <div id="api-inputs">
             <div class="form-group">
-                <label for="chapter-input">Chapter</label>
-                <input type="number" id="chapter-input" value="6" min="1" max="150">
+                <label for="book-select">Select Bible Book</label>
+                <select id="book-select">
+                    <!-- Old Testament -->
+                    <optgroup label="Old Testament">
+                        <option value="Genesis">Genesis</option>
+                        <option value="Exodus">Exodus</option>
+                        <option value="Leviticus">Leviticus</option>
+                        <option value="Numbers">Numbers</option>
+                        <option value="Deuteronomy">Deuteronomy</option>
+                        <option value="Joshua">Joshua</option>
+                        <option value="Judges">Judges</option>
+                        <option value="Ruth">Ruth</option>
+                        <option value="1 Samuel">1 Samuel</option>
+                        <option value="2 Samuel">2 Samuel</option>
+                        <option value="1 Kings">1 Kings</option>
+                        <option value="2 Kings">2 Kings</option>
+                        <option value="1 Chronicles">1 Chronicles</option>
+                        <option value="2 Chronicles">2 Chronicles</option>
+                        <option value="Ezra">Ezra</option>
+                        <option value="Nehemiah">Nehemiah</option>
+                        <option value="Esther">Esther</option>
+                        <option value="Job">Job</option>
+                        <option value="Psalms">Psalms</option>
+                        <option value="Proverbs">Proverbs</option>
+                        <option value="Ecclesiastes">Ecclesiastes</option>
+                        <option value="Song of Solomon">Song of Solomon</option>
+                        <option value="Isaiah">Isaiah</option>
+                        <option value="Jeremiah">Jeremiah</option>
+                        <option value="Lamentations">Lamentations</option>
+                        <option value="Ezekiel">Ezekiel</option>
+                        <option value="Daniel">Daniel</option>
+                        <option value="Hosea">Hosea</option>
+                        <option value="Joel">Joel</option>
+                        <option value="Amos">Amos</option>
+                        <option value="Obadiah">Obadiah</option>
+                        <option value="Jonah">Jonah</option>
+                        <option value="Micah">Micah</option>
+                        <option value="Nahum">Nahum</option>
+                        <option value="Habakkuk">Habakkuk</option>
+                        <option value="Zephaniah">Zephaniah</option>
+                        <option value="Haggai">Haggai</option>
+                        <option value="Zechariah">Zechariah</option>
+                        <option value="Malachi">Malachi</option>
+                    </optgroup>
+                    <!-- New Testament -->
+                    <optgroup label="New Testament">
+                        <option value="Matthew" selected>Matthew</option>
+                        <option value="Mark">Mark</option>
+                        <option value="Luke">Luke</option>
+                        <option value="John">John</option>
+                        <option value="Acts">Acts</option>
+                        <option value="Romans">Romans</option>
+                        <option value="1 Corinthians">1 Corinthians</option>
+                        <option value="2 Corinthians">2 Corinthians</option>
+                        <option value="Galatians">Galatians</option>
+                        <option value="Ephesians">Ephesians</option>
+                        <option value="Philippians">Philippians</option>
+                        <option value="Colossians">Colossians</option>
+                        <option value="1 Thessalonians">1 Thessalonians</option>
+                        <option value="2 Thessalonians">2 Thessalonians</option>
+                        <option value="1 Timothy">1 Timothy</option>
+                        <option value="2 Timothy">2 Timothy</option>
+                        <option value="Titus">Titus</option>
+                        <option value="Philemon">Philemon</option>
+                        <option value="Hebrews">Hebrews</option>
+                        <option value="James">James</option>
+                        <option value="1 Peter">1 Peter</option>
+                        <option value="2 Peter">2 Peter</option>
+                        <option value="1 John">1 John</option>
+                        <option value="2 John">2 John</option>
+                        <option value="3 John">3 John</option>
+                        <option value="Jude">Jude</option>
+                        <option value="Revelation">Revelation</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="chapter-input">Chapter</label>
+                    <input type="number" id="chapter-input" value="6" min="1" max="150">
+                </div>
+                <div class="form-group">
+                    <label for="verses-input">Verse(s) (e.g., 33 or 33-34)</label>
+                    <input type="text" id="verses-input" value="33">
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Paste Section (Hidden by default) -->
+        <div id="paste-inputs" class="hidden">
+            <div class="form-group">
+                <label for="custom-verse-title">Reference Title (e.g., Matthew 6:33)</label>
+                <input type="text" id="custom-verse-title" placeholder="Matthew 6:33">
             </div>
             <div class="form-group">
-                <label for="verses-input">Verse(s) (e.g., 33 or 33-34)</label>
-                <input type="text" id="verses-input" value="33">
+                <label for="custom-verse-text">Paste Verse Text Here</label>
+                <textarea id="custom-verse-text" placeholder="Paste your ESV text here..."></textarea>
             </div>
         </div>
 
@@ -198,45 +300,92 @@
 </div>
 
 <script>
-    let currentVerseData = [];
+    // PASTE YOUR ESV API KEY INSIDE THE QUOTES BELOW (Required only if using API mode):
+    const ESV_API_KEY = 'YOUR_ESV_API_KEY_HERE';
+
+    const pasteToggle = document.getElementById('paste-toggle');
+    const apiInputs = document.getElementById('api-inputs');
+    const pasteInputs = document.getElementById('paste-inputs');
+
+    // Toggle between API lookup and manual paste mode
+    pasteToggle.addEventListener('change', () => {
+        if (pasteToggle.checked) {
+            apiInputs.classList.add('hidden');
+            pasteInputs.classList.remove('hidden');
+        } else {
+            apiInputs.classList.remove('hidden');
+            pasteInputs.classList.add('hidden');
+        }
+    });
 
     document.getElementById('start-btn').addEventListener('click', async () => {
-        const book = document.getElementById('book-select').value;
-        const chapter = document.getElementById('chapter-input').value;
-        const verses = document.getElementById('verses-input').value.trim();
         const difficulty = document.getElementById('difficulty-select').value;
+        const isManualPaste = pasteToggle.checked;
 
-        const query = `${book} ${chapter}:${verses}`;
-        document.getElementById('quiz-title').innerText = `Quiz: ${query} (ESV)`;
+        if (isManualPaste) {
+            // Manual Paste Mode
+            const title = document.getElementById('custom-verse-title').value.trim() || "Custom Verse";
+            const text = document.getElementById('custom-verse-text').value.trim();
 
-        try {
-            // Fetching specifically with the ESV translation parameter
-            const response = await fetch(`https://bible-api.com/${encodeURIComponent(query)}?translation=esv`);
-            const data = await response.json();
-
-            if (data.error) {
-                alert("Could not fetch verse. Please check your book, chapter, and verse range.");
+            if (!text) {
+                alert("Please paste some verse text first!");
                 return;
             }
 
-            buildQuiz(data.text, difficulty);
+            document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
+            buildQuiz(text, difficulty);
             document.getElementById('setup-section').classList.add('hidden');
             document.getElementById('quiz-section').classList.remove('hidden');
-        } catch (error) {
-            alert("Error connecting to Bible API. Make sure you have an internet connection.");
+
+        } else {
+            // API Mode
+            if (ESV_API_KEY === 'YOUR_ESV_API_KEY_HERE') {
+                alert("Please paste your ESV API key into the script code, or check the box to paste verses manually!");
+                return;
+            }
+
+            const book = document.getElementById('book-select').value;
+            const chapter = document.getElementById('chapter-input').value;
+            const verses = document.getElementById('verses-input').value.trim();
+
+            const query = `${book} ${chapter}:${verses}`;
+            document.getElementById('quiz-title').innerText = `Quiz: ${query} (ESV)`;
+
+            const url = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(query)}&include-headings=false&include-footnotes=false&include-verse-numbers=false&include-passage-references=false`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${ESV_API_KEY}`
+                    }
+                });
+                const data = await response.json();
+
+                if (!data.passages || data.passages.length === 0) {
+                    alert("Could not fetch verse. Please check your book, chapter, and verse range.");
+                    return;
+                }
+
+                const verseText = data.passages[0].trim();
+                buildQuiz(verseText, difficulty);
+
+                document.getElementById('setup-section').classList.add('hidden');
+                document.getElementById('quiz-section').classList.remove('hidden');
+            } catch (error) {
+                alert("Error connecting to the ESV API. Check your internet connection or API key.");
+            }
         }
     });
 
     function buildQuiz(text, difficulty) {
         const quizContainer = document.getElementById('quiz-container');
         quizContainer.innerHTML = '';
-        currentVerseData = [];
 
-        const rawWords = text.trim().split(/\s+/);
+        const rawWords = text.split(/\s+/);
 
         rawWords.forEach((rawWord, index) => {
             const cleanWord = rawWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
-            
             let isBlank = false;
 
             if (cleanWord.length > 0) {
@@ -249,11 +398,10 @@
                 } else if (difficulty === 'middle-intermediate') {
                     if (index % 2 === 0 && Math.random() > 0.3) isBlank = true;
                 } else if (difficulty === 'hard') {
+                    // Every other word blank
                     if (index % 2 !== 0) isBlank = true;
                 }
             }
-
-            currentVerseData.push({ original: rawWord, clean: cleanWord, isBlank: isBlank });
 
             if (isBlank && cleanWord.length > 0) {
                 const input = document.createElement('input');
