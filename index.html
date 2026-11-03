@@ -266,7 +266,7 @@
             </div>
             <div class="form-group">
                 <label for="custom-verse-text">Paste Verse Text Here</label>
-                <textarea id="custom-verse-text" placeholder="Paste your text here (superscripts and numbers will be automatically stripped)..."></textarea>
+                <textarea id="custom-verse-text" placeholder="Paste your text here..."></textarea>
             </div>
         </div>
 
@@ -329,10 +329,7 @@
                 return;
             }
 
-            // 1. Remove verse numbers at the beginning of lines
             text = text.replace(/^\d+\s*/gm, '');
-            
-            // 2. Remove standalone tiny reference letters (like space+letter+space or start+letter+space)
             text = text.replace(/(^|\s)[a-zA-Z](\s|$)/g, ' ');
 
             document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
@@ -386,21 +383,26 @@
 
         const rawWords = text.split(/\s+/).filter(w => w.length > 0);
 
+        // Decide which word indices will be blanks based on difficulty, with randomization
         rawWords.forEach((rawWord, index) => {
             const cleanWord = rawWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
             let isBlank = false;
 
             if (cleanWord.length > 0) {
                 if (difficulty === 'easy') {
-                    if (index === 2 || index === 5) isBlank = true;
+                    // Blank out 2 random valid words
+                    const randomChance = Math.random();
+                    if (cleanWord.length > 3 && randomChance < 0.15) isBlank = true;
                 } else if (difficulty === 'medium') {
-                    if (index % 4 === 0 && cleanWord.length > 2) isBlank = true;
+                    if (cleanWord.length > 2 && Math.random() < 0.25) isBlank = true;
                 } else if (difficulty === 'intermediate') {
-                    if (index % 3 === 0 && cleanWord.length > 2) isBlank = true;
+                    if (cleanWord.length > 2 && Math.random() < 0.35) isBlank = true;
                 } else if (difficulty === 'middle-intermediate') {
-                    if (index % 2 === 0 && Math.random() > 0.3) isBlank = true;
+                    if (cleanWord.length > 1 && Math.random() < 0.50) isBlank = true;
                 } else if (difficulty === 'hard') {
-                    if (index % 2 !== 0) isBlank = true;
+                    // Hard: Randomize starting offset so alternating pattern shifts every time
+                    const randomOffset = Math.floor(Math.random() * 2);
+                    if ((index + randomOffset) % 2 !== 0 && cleanWord.length > 0) isBlank = true;
                 }
             }
 
@@ -426,7 +428,6 @@
         let totalBlanks = inputs.length;
 
         inputs.forEach(input => {
-            // Case-insensitive comparison (.toLowerCase())
             const userAnswer = input.value.trim().toLowerCase();
             const correctAnswer = input.dataset.answer.toLowerCase();
             const parent = input.parentNode;
