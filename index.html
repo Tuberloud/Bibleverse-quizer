@@ -116,6 +116,39 @@
             font-size: 1.05rem;
         }
 
+        .tip-clear-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            gap: 10px;
+        }
+
+        .sub-tip {
+            font-size: 0.85rem;
+            opacity: 0.75;
+        }
+
+        /* Mid-sized clear button styling */
+        .mid-clear-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            width: auto;
+            margin-top: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mid-clear-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
         select, input, textarea, button {
             width: 100%;
             padding: 12px 14px;
@@ -281,6 +314,10 @@
         <div class="form-group">
             <label for="custom-verse-text">Paste Verse Text Here</label>
             <textarea id="custom-verse-text" placeholder="Paste your text here..."></textarea>
+            <div class="tip-clear-row">
+                <span class="sub-tip">Tip: Paste text into a plain text editor first to remove stray footnote letters.</span>
+                <button type="button" id="clear-btn" class="mid-clear-btn">Clear Text</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -354,6 +391,13 @@
         verseTextarea.style.height = verseTextarea.scrollHeight + 'px';
     }
 
+    // Clear Text button logic
+    document.getElementById('clear-btn').addEventListener('click', () => {
+        document.getElementById('custom-verse-title').value = '';
+        verseTextarea.value = '';
+        verseTextarea.style.height = '120px';
+    });
+
     let availableHints = 0;
 
     document.getElementById('start-btn').addEventListener('click', () => {
@@ -395,7 +439,7 @@
         rawWords.forEach((word, index) => {
             const clean = word.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
             
-            // Only select words as valid blanks. Ignore standalone numbers (verse numbers) and numbers with letters attached.
+            // Only select words as valid blanks (ignore standalone numbers/verse numbers)
             if (clean.length > 0 && isNaN(clean)) {
                 validIndices.push(index);
             }
@@ -438,6 +482,15 @@
                 input.type = 'text';
                 input.className = 'blank-input';
                 input.dataset.answer = cleanWord;
+
+                // Allow pressing "Enter" to submit quiz directly from any blank
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('submit-btn').click();
+                    }
+                });
+
                 quizContainer.appendChild(input);
             } else {
                 const span = document.createElement('span');
