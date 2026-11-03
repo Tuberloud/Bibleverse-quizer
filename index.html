@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESV Bible Verse Memorization Quiz</title>
+    <title>Bible Verse Memorization Quiz</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -155,7 +155,7 @@
 <body>
 
 <div class="container">
-    <h1>ESV Bible Verse Memorizer</h1>
+    <h1>Bible Verse Memorization Quiz</h1>
 
     <!-- Setup Form -->
     <div id="setup-section">
@@ -383,7 +383,6 @@
 
         const rawWords = text.split(/\s+/).filter(w => w.length > 0);
         
-        // Find all indices of valid words that can be blanked out
         let validIndices = [];
         rawWords.forEach((word, index) => {
             const clean = word.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
@@ -392,22 +391,10 @@
             }
         });
 
-        // Determine how many blanks to create based on difficulty
-        let blankCount = 2; // default easy
-        if (difficulty === 'medium') {
-            blankCount = Math.ceil(validIndices.length * 0.25);
-        } else if (difficulty === 'intermediate') {
-            blankCount = Math.ceil(validIndices.length * 0.35);
-        } else if (difficulty === 'middle-intermediate') {
-            blankCount = Math.ceil(validIndices.length * 0.50);
-        } else if (difficulty === 'hard') {
-            blankCount = Math.ceil(validIndices.length * 0.50); // Every other word roughly
-        }
-
         let chosenIndices = new Set();
 
         if (difficulty === 'hard') {
-            // Hard: Randomly pick either even or odd positions to start every-other-word spacing fresh each time
+            // Hard: Randomly choose whether to start on the 0th or 1st valid word index every time
             let startOffset = Math.random() < 0.5 ? 0 : 1;
             validIndices.forEach((pos, idx) => {
                 if (idx % 2 === startOffset) {
@@ -415,8 +402,23 @@
                 }
             });
         } else {
-            // Randomly shuffle valid indices and pick `blankCount` unique positions every time
-            let shuffled = [...validIndices].sort(() => 0.5 - Math.random());
+            // Determine quantity of blanks based on difficulty
+            let blankCount = 2; // Easy
+            if (difficulty === 'medium') {
+                blankCount = Math.max(2, Math.ceil(validIndices.length * 0.25));
+            } else if (difficulty === 'intermediate') {
+                blankCount = Math.max(3, Math.ceil(validIndices.length * 0.35));
+            } else if (difficulty === 'middle-intermediate') {
+                blankCount = Math.max(4, Math.ceil(validIndices.length * 0.50));
+            }
+
+            // True random shuffle of valid indices using Fisher-Yates algorithm
+            let shuffled = [...validIndices];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
             let selected = shuffled.slice(0, blankCount);
             chosenIndices = new Set(selected);
         }
