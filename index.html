@@ -261,12 +261,12 @@
         <!-- Manual Paste Section (Hidden by default) -->
         <div id="paste-inputs" class="hidden">
             <div class="form-group">
-                <label for="custom-verse-title">Reference Title (e.g., Matthew 6:33)</label>
-                <input type="text" id="custom-verse-title" placeholder="Matthew 6:33">
+                <label for="custom-verse-title">Reference Title (e.g., Ephesians 6:1)</label>
+                <input type="text" id="custom-verse-title" placeholder="Ephesians 6:1">
             </div>
             <div class="form-group">
                 <label for="custom-verse-text">Paste Verse Text Here</label>
-                <textarea id="custom-verse-text" placeholder="Paste your ESV text here..."></textarea>
+                <textarea id="custom-verse-text" placeholder="Paste your text here (cross-references and numbers will be automatically removed)..."></textarea>
             </div>
         </div>
 
@@ -300,14 +300,12 @@
 </div>
 
 <script>
-    // PASTE YOUR ESV API KEY INSIDE THE QUOTES BELOW (Required only if using API mode):
     const ESV_API_KEY = 'YOUR_ESV_API_KEY_HERE';
 
     const pasteToggle = document.getElementById('paste-toggle');
     const apiInputs = document.getElementById('api-inputs');
     const pasteInputs = document.getElementById('paste-inputs');
 
-    // Toggle between API lookup and manual paste mode
     pasteToggle.addEventListener('change', () => {
         if (pasteToggle.checked) {
             apiInputs.classList.add('hidden');
@@ -323,14 +321,19 @@
         const isManualPaste = pasteToggle.checked;
 
         if (isManualPaste) {
-            // Manual Paste Mode
             const title = document.getElementById('custom-verse-title').value.trim() || "Custom Verse";
-            const text = document.getElementById('custom-verse-text').value.trim();
+            let text = document.getElementById('custom-verse-text').value.trim();
 
             if (!text) {
                 alert("Please paste some verse text first!");
                 return;
             }
+
+            // 1. Remove verse reference numbers at start of lines (e.g., "1 ", "6 ")
+            text = text.replace(/^\d+\s*/gm, '');
+            
+            // 2. Remove standalone tiny cross-reference letters (single letters like 'n', 'o', etc., surrounded by spaces or punctuation)
+            text = text.replace(/\b[a-zA-Z]\b/g, '');
 
             document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
             buildQuiz(text, difficulty);
@@ -338,7 +341,6 @@
             document.getElementById('quiz-section').classList.remove('hidden');
 
         } else {
-            // API Mode
             if (ESV_API_KEY === 'YOUR_ESV_API_KEY_HERE') {
                 alert("Please paste your ESV API key into the script code, or check the box to paste verses manually!");
                 return;
@@ -382,7 +384,7 @@
         const quizContainer = document.getElementById('quiz-container');
         quizContainer.innerHTML = '';
 
-        const rawWords = text.split(/\s+/);
+        const rawWords = text.split(/\s+/).filter(w => w.length > 0);
 
         rawWords.forEach((rawWord, index) => {
             const cleanWord = rawWord.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g,"");
@@ -398,7 +400,6 @@
                 } else if (difficulty === 'middle-intermediate') {
                     if (index % 2 === 0 && Math.random() > 0.3) isBlank = true;
                 } else if (difficulty === 'hard') {
-                    // Every other word blank
                     if (index % 2 !== 0) isBlank = true;
                 }
             }
