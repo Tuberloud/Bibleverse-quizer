@@ -266,7 +266,7 @@
             </div>
             <div class="form-group">
                 <label for="custom-verse-text">Paste Verse Text Here</label>
-                <textarea id="custom-verse-text" placeholder="Paste your text here (cross-references and numbers will be automatically removed)..."></textarea>
+                <textarea id="custom-verse-text" placeholder="Paste your text here (superscripts and numbers will be automatically stripped)..."></textarea>
             </div>
         </div>
 
@@ -329,11 +329,11 @@
                 return;
             }
 
-            // 1. Remove verse reference numbers at start of lines (e.g., "1 ", "6 ")
+            // 1. Remove verse numbers at the beginning of lines
             text = text.replace(/^\d+\s*/gm, '');
             
-            // 2. Remove standalone tiny cross-reference letters (single letters like 'n', 'o', etc., surrounded by spaces or punctuation)
-            text = text.replace(/\b[a-zA-Z]\b/g, '');
+            // 2. Remove standalone tiny reference letters (like space+letter+space or start+letter+space)
+            text = text.replace(/(^|\s)[a-zA-Z](\s|$)/g, ' ');
 
             document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
             buildQuiz(text, difficulty);
@@ -426,6 +426,7 @@
         let totalBlanks = inputs.length;
 
         inputs.forEach(input => {
+            // Case-insensitive comparison (.toLowerCase())
             const userAnswer = input.value.trim().toLowerCase();
             const correctAnswer = input.dataset.answer.toLowerCase();
             const parent = input.parentNode;
