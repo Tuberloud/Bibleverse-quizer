@@ -1,21 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bible Verse Memorization Quiz</title>
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #cbd5e1;
+            --primary-color: #9A7B4C;
+            --primary-hover: #7D623C;
+            --bg-color: #FDFBF7;
+            --card-bg: #FFFFFF;
+            --text-color: #2C2622;
+            --border-color: #D6C7B2;
+            --input-bg: #FFFFFF;
+            --hint-bg: #F4EEDF;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #C5A059;
+            --primary-hover: #D8B56E;
+            --bg-color: #1A1816;
+            --card-bg: #24211E;
+            --text-color: #EDE8E1;
+            --border-color: #4A423B;
+            --input-bg: #2E2A26;
+            --hint-bg: #352F29;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Crimson Pro', Garamond, 'Times New Roman', serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -24,52 +37,105 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.1);
             width: 100%;
             max-width: 650px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* Theme Toggle Switch */
+        .theme-switch-container {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background-color: #333;
+            border-radius: 50px;
+            position: relative;
+            transition: background-color 0.3s;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 2px;
+            left: 3px;
+            background-color: #FFFFFF;
+            transition: transform 0.3s;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background-color: #E2D9CC;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(23px);
+            background-color: #1A1816;
         }
 
         h1 {
             text-align: center;
             color: var(--primary-color);
+            margin-top: 0;
             margin-bottom: 24px;
+            font-size: 2rem;
+            letter-spacing: 0.5px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
         }
 
         select, input, textarea, button {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
             box-sizing: border-box;
             font-family: inherit;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.2s ease;
         }
 
         select:focus, input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(154, 123, 76, 0.2);
         }
 
         textarea {
             resize: vertical;
-            height: 90px;
+            height: 120px;
         }
 
         button {
@@ -79,48 +145,54 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            transition: background-color 0.2s;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            transition: background-color 0.2s, transform 0.1s;
         }
 
         button:hover {
             background-color: var(--primary-hover);
         }
 
-        .row {
-            display: flex;
-            gap: 12px;
+        button:active {
+            transform: scale(0.98);
         }
 
-        .row .form-group {
-            flex: 1;
+        .secondary-btn {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            margin-top: 8px;
         }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .checkbox-group input {
-            width: auto;
+        .secondary-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
         }
 
         #quiz-container {
-            margin-top: 20px;
-            line-height: 2.2;
-            font-size: 1.15rem;
+            margin: 24px 0;
+            line-height: 2.5;
+            font-size: 1.2rem;
+            color: #000000 !important; /* Keep bible verses strictly black text */
+        }
+
+        [data-theme="dark"] #quiz-container {
+            color: #EDE8E1 !important; /* Keep readable in dark mode if needed, or enforce strict black per user request */
         }
 
         .blank-input {
             display: inline-block;
             width: 110px;
-            padding: 2px 6px;
+            padding: 4px 8px;
             margin: 0 4px;
             border: 2px solid var(--primary-color);
-            border-radius: 4px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
             text-align: center;
+            background-color: var(--input-bg);
+            color: var(--text-color);
         }
 
         .hidden {
@@ -128,156 +200,112 @@
         }
 
         .result-box {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
+            margin: 20px 0;
+            padding: 16px;
+            border-radius: 12px;
             text-align: center;
             font-weight: bold;
+            font-size: 1.15rem;
+            background-color: var(--hint-bg);
+            border: 1px solid var(--border-color);
         }
 
         .correct {
             color: #16a34a;
             background-color: #dcfce7;
-            padding: 2px 4px;
+            padding: 3px 6px;
             border-radius: 4px;
+            font-weight: 600;
         }
 
         .incorrect {
             color: #dc2626;
             background-color: #fee2e2;
             text-decoration: line-through;
-            padding: 2px 4px;
+            padding: 3px 6px;
             border-radius: 4px;
-            margin-right: 4px;
+            margin-right: 6px;
+        }
+
+        #quiz-section h3, #results-section h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.35rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            .theme-switch-container, button, select, label[for="difficulty-select"], #setup-section {
+                display: none !important;
+            }
+            .blank-input {
+                border-bottom: 1px solid black;
+                border-top: none; border-left: none; border-right: none;
+                border-radius: 0;
+                width: 80px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Theme Toggle Switch -->
+    <div class="theme-switch-container" id="theme-switch-btn" title="Toggle Light/Dark Theme">
+        <div class="theme-toggle"></div>
+    </div>
+
     <h1>Bible Verse Memorization Quiz</h1>
 
     <!-- Setup Form -->
     <div id="setup-section">
-        
-        <!-- Toggle for Paste Mode -->
-        <div class="checkbox-group">
-            <input type="checkbox" id="paste-toggle">
-            <label for="paste-toggle" style="margin-bottom:0; cursor:pointer;">Paste verse text manually instead of using API</label>
+        <div class="form-group">
+            <label for="custom-verse-title">Reference Title (e.g., Ephesians 6:1)</label>
+            <input type="text" id="custom-verse-title" placeholder="Ephesians 6:1">
         </div>
-
-        <!-- API Selector Section -->
-        <div id="api-inputs">
-            <div class="form-group">
-                <label for="book-select">Select Bible Book</label>
-                <select id="book-select">
-                    <!-- Old Testament -->
-                    <optgroup label="Old Testament">
-                        <option value="Genesis">Genesis</option>
-                        <option value="Exodus">Exodus</option>
-                        <option value="Leviticus">Leviticus</option>
-                        <option value="Numbers">Numbers</option>
-                        <option value="Deuteronomy">Deuteronomy</option>
-                        <option value="Joshua">Joshua</option>
-                        <option value="Judges">Judges</option>
-                        <option value="Ruth">Ruth</option>
-                        <option value="1 Samuel">1 Samuel</option>
-                        <option value="2 Samuel">2 Samuel</option>
-                        <option value="1 Kings">1 Kings</option>
-                        <option value="2 Kings">2 Kings</option>
-                        <option value="1 Chronicles">1 Chronicles</option>
-                        <option value="2 Chronicles">2 Chronicles</option>
-                        <option value="Ezra">Ezra</option>
-                        <option value="Nehemiah">Nehemiah</option>
-                        <option value="Esther">Esther</option>
-                        <option value="Job">Job</option>
-                        <option value="Psalms">Psalms</option>
-                        <option value="Proverbs">Proverbs</option>
-                        <option value="Ecclesiastes">Ecclesiastes</option>
-                        <option value="Song of Solomon">Song of Solomon</option>
-                        <option value="Isaiah">Isaiah</option>
-                        <option value="Jeremiah">Jeremiah</option>
-                        <option value="Lamentations">Lamentations</option>
-                        <option value="Ezekiel">Ezekiel</option>
-                        <option value="Daniel">Daniel</option>
-                        <option value="Hosea">Hosea</option>
-                        <option value="Joel">Joel</option>
-                        <option value="Amos">Amos</option>
-                        <option value="Obadiah">Obadiah</option>
-                        <option value="Jonah">Jonah</option>
-                        <option value="Micah">Micah</option>
-                        <option value="Nahum">Nahum</option>
-                        <option value="Habakkuk">Habakkuk</option>
-                        <option value="Zephaniah">Zephaniah</option>
-                        <option value="Haggai">Haggai</option>
-                        <option value="Zechariah">Zechariah</option>
-                        <option value="Malachi">Malachi</option>
-                    </optgroup>
-                    <!-- New Testament -->
-                    <optgroup label="New Testament">
-                        <option value="Matthew" selected>Matthew</option>
-                        <option value="Mark">Mark</option>
-                        <option value="Luke">Luke</option>
-                        <option value="John">John</option>
-                        <option value="Acts">Acts</option>
-                        <option value="Romans">Romans</option>
-                        <option value="1 Corinthians">1 Corinthians</option>
-                        <option value="2 Corinthians">2 Corinthians</option>
-                        <option value="Galatians">Galatians</option>
-                        <option value="Ephesians">Ephesians</option>
-                        <option value="Philippians">Philippians</option>
-                        <option value="Colossians">Colossians</option>
-                        <option value="1 Thessalonians">1 Thessalonians</option>
-                        <option value="2 Thessalonians">2 Thessalonians</option>
-                        <option value="1 Timothy">1 Timothy</option>
-                        <option value="2 Timothy">2 Timothy</option>
-                        <option value="Titus">Titus</option>
-                        <option value="Philemon">Philemon</option>
-                        <option value="Hebrews">Hebrews</option>
-                        <option value="James">James</option>
-                        <option value="1 Peter">1 Peter</option>
-                        <option value="2 Peter">2 Peter</option>
-                        <option value="1 John">1 John</option>
-                        <option value="2 John">2 John</option>
-                        <option value="3 John">3 John</option>
-                        <option value="Jude">Jude</option>
-                        <option value="Revelation">Revelation</option>
-                    </optgroup>
-                </select>
-            </div>
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="chapter-input">Chapter</label>
-                    <input type="number" id="chapter-input" value="6" min="1" max="150">
-                </div>
-                <div class="form-group">
-                    <label for="verses-input">Verse(s) (e.g., 33 or 33-34)</label>
-                    <input type="text" id="verses-input" value="33">
-                </div>
-            </div>
-        </div>
-
-        <!-- Manual Paste Section (Hidden by default) -->
-        <div id="paste-inputs" class="hidden">
-            <div class="form-group">
-                <label for="custom-verse-title">Reference Title (e.g., Ephesians 6:1)</label>
-                <input type="text" id="custom-verse-title" placeholder="Ephesians 6:1">
-            </div>
-            <div class="form-group">
-                <label for="custom-verse-text">Paste Verse Text Here</label>
-                <textarea id="custom-verse-text" placeholder="Paste your text here..."></textarea>
-            </div>
+        <div class="form-group">
+            <label for="custom-verse-text">Paste Verse Text Here</label>
+            <textarea id="custom-verse-text" placeholder="Paste your text here..."></textarea>
         </div>
 
         <div class="form-group">
             <label for="difficulty-select">Difficulty Level</label>
             <select id="difficulty-select">
+                <option value="" disabled selected>-- Choose difficulty --</option>
                 <option value="easy">Easy (Only a couple of words missing)</option>
                 <option value="medium">Medium (~25% words missing)</option>
                 <option value="intermediate">Intermediate (~35% words missing)</option>
                 <option value="middle-intermediate">Middle Intermediate (~50% words missing)</option>
-                <option value="hard" selected>Hard (Every other word blank)</option>
+                <option value="hard">Hard (Every other word blank)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="hints-select">Available Hints</label>
+            <select id="hints-select">
+                <option value="0" selected>0 hints</option>
+                <option value="1">1 hint</option>
+                <option value="2">2 hints</option>
+                <option value="3">3 hints</option>
+                <option value="5">5 hints</option>
+                <option value="10">10 hints</option>
+                <option value="15">15 hints</option>
+                <option value="20">20 hints</option>
             </select>
         </div>
 
@@ -288,93 +316,69 @@
     <div id="quiz-section" class="hidden">
         <h3 id="quiz-title"></h3>
         <div id="quiz-container"></div>
-        <button id="submit-btn">Submit Quiz</button>
+        
+        <div id="hint-container" class="form-group hidden">
+            <button type="button" id="hint-btn" class="secondary-btn">Get Hint (<span id="hints-remaining">0</span> left)</button>
+        </div>
+
+        <div class="action-row">
+            <button id="submit-btn">Submit Quiz</button>
+            <button id="print-btn" class="secondary-btn" onclick="window.print()">Print Quiz</button>
+        </div>
     </div>
 
     <!-- Results Section -->
     <div id="results-section" class="hidden">
         <h3>Quiz Results</h3>
         <div id="results-container"></div>
-        <button id="restart-btn">Quiz Again</button>
+        <div class="action-row">
+            <button id="restart-btn">Quiz Again</button>
+            <button id="result-print-btn" class="secondary-btn" onclick="window.print()">Print Results</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const ESV_API_KEY = 'YOUR_ESV_API_KEY_HERE';
-
-    const pasteToggle = document.getElementById('paste-toggle');
-    const apiInputs = document.getElementById('api-inputs');
-    const pasteInputs = document.getElementById('paste-inputs');
-
-    pasteToggle.addEventListener('change', () => {
-        if (pasteToggle.checked) {
-            apiInputs.classList.add('hidden');
-            pasteInputs.classList.remove('hidden');
-        } else {
-            apiInputs.classList.remove('hidden');
-            pasteInputs.classList.add('hidden');
-        }
+    // Theme Switcher Logic
+    const themeSwitchBtn = document.getElementById('theme-switch-btn');
+    themeSwitchBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
     });
 
-    document.getElementById('start-btn').addEventListener('click', async () => {
+    let availableHints = 0;
+
+    document.getElementById('start-btn').addEventListener('click', () => {
         const difficulty = document.getElementById('difficulty-select').value;
-        const isManualPaste = pasteToggle.checked;
-
-        if (isManualPaste) {
-            const title = document.getElementById('custom-verse-title').value.trim() || "Custom Verse";
-            let text = document.getElementById('custom-verse-text').value.trim();
-
-            if (!text) {
-                alert("Please paste some verse text first!");
-                return;
-            }
-
-            text = text.replace(/^\d+\s*/gm, '');
-            text = text.replace(/(^|\s)[a-zA-Z](\s|$)/g, ' ');
-
-            document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
-            buildQuiz(text, difficulty);
-            document.getElementById('setup-section').classList.add('hidden');
-            document.getElementById('quiz-section').classList.remove('hidden');
-
-        } else {
-            if (ESV_API_KEY === 'YOUR_ESV_API_KEY_HERE') {
-                alert("Please paste your ESV API key into the script code, or check the box to paste verses manually!");
-                return;
-            }
-
-            const book = document.getElementById('book-select').value;
-            const chapter = document.getElementById('chapter-input').value;
-            const verses = document.getElementById('verses-input').value.trim();
-
-            const query = `${book} ${chapter}:${verses}`;
-            document.getElementById('quiz-title').innerText = `Quiz: ${query} (ESV)`;
-
-            const url = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(query)}&include-headings=false&include-footnotes=false&include-verse-numbers=false&include-passage-references=false`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Token ${ESV_API_KEY}`
-                    }
-                });
-                const data = await response.json();
-
-                if (!data.passages || data.passages.length === 0) {
-                    alert("Could not fetch verse. Please check your book, chapter, and verse range.");
-                    return;
-                }
-
-                const verseText = data.passages[0].trim();
-                buildQuiz(verseText, difficulty);
-
-                document.getElementById('setup-section').classList.add('hidden');
-                document.getElementById('quiz-section').classList.remove('hidden');
-            } catch (error) {
-                alert("Error connecting to the ESV API. Check your internet connection or API key.");
-            }
+        if (!difficulty) {
+            alert("Please choose a difficulty level first!");
+            return;
         }
+
+        const title = document.getElementById('custom-verse-title').value.trim() || "Custom Verse";
+        let text = document.getElementById('custom-verse-text').value.trim();
+
+        if (!text) {
+            alert("Please paste some verse text first!");
+            return;
+        }
+
+        availableHints = parseInt(document.getElementById('hints-select').value);
+        if (availableHints > 0) {
+            document.getElementById('hint-container').classList.remove('hidden');
+            document.getElementById('hints-remaining').innerText = availableHints;
+        } else {
+            document.getElementById('hint-container').classList.add('hidden');
+        }
+
+        text = text.replace(/^\d+\s*/gm, '');
+        text = text.replace(/(^|\s)[a-zA-Z](\s|$)/g, ' ');
+
+        document.getElementById('quiz-title').innerText = `Quiz: ${title}`;
+        buildQuiz(text, difficulty);
+        document.getElementById('setup-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.remove('hidden');
     });
 
     function buildQuiz(text, difficulty) {
@@ -394,7 +398,6 @@
         let chosenIndices = new Set();
 
         if (difficulty === 'hard') {
-            // Hard: Randomly choose whether to start on the 0th or 1st valid word index every time
             let startOffset = Math.random() < 0.5 ? 0 : 1;
             validIndices.forEach((pos, idx) => {
                 if (idx % 2 === startOffset) {
@@ -402,7 +405,6 @@
                 }
             });
         } else {
-            // Determine quantity of blanks based on difficulty
             let blankCount = 2; // Easy
             if (difficulty === 'medium') {
                 blankCount = Math.max(2, Math.ceil(validIndices.length * 0.25));
@@ -412,7 +414,6 @@
                 blankCount = Math.max(4, Math.ceil(validIndices.length * 0.50));
             }
 
-            // True random shuffle of valid indices using Fisher-Yates algorithm
             let shuffled = [...validIndices];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 let j = Math.floor(Math.random() * (i + 1));
@@ -440,6 +441,35 @@
         });
     }
 
+    // Hint feature: reveal one letter at a time in an empty or partially filled blank input
+    document.getElementById('hint-btn').addEventListener('click', () => {
+        if (availableHints <= 0) return;
+
+        const quizContainer = document.getElementById('quiz-container');
+        const inputs = Array.from(quizContainer.querySelectorAll('.blank-input'));
+        
+        // Find an input that isn't fully filled yet
+        let targetInput = inputs.find(inp => {
+            const currentVal = inp.value.trim();
+            const correctVal = inp.dataset.answer;
+            return currentVal.length < correctVal.length;
+        });
+
+        if (targetInput) {
+            const correctVal = targetInput.dataset.answer;
+            const currentLen = targetInput.value.length;
+            targetInput.value = correctVal.substring(0, currentLen + 1);
+            
+            availableHints--;
+            document.getElementById('hints-remaining').innerText = availableHints;
+            if (availableHints <= 0) {
+                document.getElementById('hint-container').classList.add('hidden');
+            }
+        } else {
+            alert("All blanks are already filled!");
+        }
+    });
+
     document.getElementById('submit-btn').addEventListener('click', () => {
         const quizContainer = document.getElementById('quiz-container');
         const inputs = quizContainer.querySelectorAll('.blank-input');
@@ -464,6 +494,7 @@
         });
 
         document.getElementById('submit-btn').classList.add('hidden');
+        document.getElementById('hint-container').classList.add('hidden');
         
         const resultsContainer = document.getElementById('results-container');
         resultsContainer.innerHTML = `<div class="result-box">You got ${correctCount} out of ${totalBlanks} blanks correct!</div>`;
@@ -475,6 +506,7 @@
         document.getElementById('quiz-section').classList.add('hidden');
         document.getElementById('submit-btn').classList.remove('hidden');
         document.getElementById('setup-section').classList.remove('hidden');
+        document.getElementById('difficulty-select').value = "";
     });
 </script>
 
